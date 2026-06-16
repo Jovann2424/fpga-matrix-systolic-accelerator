@@ -1,0 +1,15 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+package systolic_types is
+    constant ELEM_WIDTH : integer := 8;   -- Može biti 8, 16, itd.
+    constant ACC_WIDTH  : integer := 24;  -- Preporučeno: (2 * ELEM_WIDTH) + log2(N), npr. 24 ili 48
+    constant N          : integer := 2;   -- Skaliranje: 2, 4, 8, 16...
+
+    subtype elem_t is signed(ELEM_WIDTH-1 downto 0);
+    subtype acc_t  is signed(ACC_WIDTH-1 downto 0);
+
+    type vec_elem is array (0 to N-1) of elem_t;
+    type mat_acc  is array (0 to N-1, 0 to N-1) of acc_t;
+end package systolic_types;

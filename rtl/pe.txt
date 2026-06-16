@@ -1,0 +1,51 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity pe is
+    generic(
+        ELEM_WIDTH : integer := 8;
+        ACC_WIDTH  : integer := 24
+    );
+    port (
+        clk       : in  std_logic;
+        rst       : in  std_logic; 
+        clear_acc : in  std_logic;
+        a_in      : in  signed(ELEM_WIDTH-1 downto 0);
+        b_in      : in  signed(ELEM_WIDTH-1 downto 0);
+        valid_in  : in  std_logic;
+
+        a_out     : out signed(ELEM_WIDTH-1 downto 0);
+        b_out     : out signed(ELEM_WIDTH-1 downto 0);
+        valid_out : out std_logic;
+        acc_out   : out signed(ACC_WIDTH-1 downto 0)
+    );
+end entity;
+
+architecture rtl of pe is
+    signal acc_reg : signed(ACC_WIDTH-1 downto 0) := (others => '0');
+begin
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if rst = '1' then 
+                acc_reg   <= (others => '0');
+                a_out     <= (others => '0');
+                b_out     <= (others => '0');
+                valid_out <= '0';
+            else
+                a_out     <= a_in;
+                b_out     <= b_in;
+                valid_out <= valid_in;
+            
+                if clear_acc = '1' then
+                    acc_reg <= (others => '0');
+                elsif valid_in = '1' then
+                    acc_reg <= acc_reg + (a_in * b_in);
+                end if;
+            end if;
+        end if;
+    end process;
+    
+    acc_out <= acc_reg;
+end architecture;

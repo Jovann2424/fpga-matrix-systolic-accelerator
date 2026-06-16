@@ -1,0 +1,14 @@
+SIM          = ghdl
+TOPLEVEL_LANG = vhdl
+
+VHDL_SOURCES  = $(PWD)/../rtl_accelerator/systolic_types.vhd
+VHDL_SOURCES += $(PWD)/../rtl_accelerator/pe.vhd
+VHDL_SOURCES += $(PWD)/../rtl_accelerator/systolic8x8.vhd
+VHDL_SOURCES += $(PWD)/../rtl_accelerator/systolic_streaming_wrapper.vhd
+
+TOPLEVEL = systolic_st_wrapper
+MODULE   = test_systolic_wrapper
+
+GHDL_ARGS = --std=08
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

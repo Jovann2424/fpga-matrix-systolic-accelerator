@@ -1,0 +1,51 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.systolic_types.all;
+
+entity systolic8x8 is
+    port (
+        clk         : in  std_logic;
+        rst         : in  std_logic;
+        clear_acc   : in  std_logic;
+        A_in        : in  vec_elem;
+        B_in        : in  vec_elem;
+        valid_in    : in  std_logic;
+        C_out       : out mat_acc
+    );
+end entity;
+
+architecture rtl of systolic8x8 is
+    type a_net is array (0 to N-1, 0 to N)   of elem_t;
+    type b_net is array (0 to N,   0 to N-1) of elem_t;
+    type v_net is array (0 to N-1, 0 to N)   of std_logic;
+
+    signal a_bus : a_net;
+    signal b_bus : b_net;
+    signal v_bus : v_net;
+begin
+    gen_init: for i in 0 to N-1 generate
+        a_bus(i, 0) <= A_in(i);
+        b_bus(0, i) <= B_in(i);
+        v_bus(i, 0) <= valid_in;
+    end generate;
+
+    gen_rows: for i in 0 to N-1 generate
+        gen_cols: for j in 0 to N-1 generate
+            PE_inst: entity work.pe
+                generic map (ELEM_WIDTH => ELEM_WIDTH, ACC_WIDTH => ACC_WIDTH)
+                port map (
+                    clk       => clk,
+                    rst       => rst,
+                    clear_acc => clear_acc,
+                    a_in      => a_bus(i, j),
+                    b_in      => b_bus(i, j),
+                    valid_in  => v_bus(i, j),      
+                    a_out     => a_bus(i, j+1),
+                    b_out     => b_bus(i+1, j),
+                    valid_out => v_bus(i, j+1),
+                    acc_out   => C_out(i, j)
+                );
+        end generate;
+    end generate;
+end architecture;
